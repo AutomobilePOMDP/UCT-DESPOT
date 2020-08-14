@@ -67,7 +67,7 @@ function expand!(D::UCT_DESPOT, b::Int, p::UCT_DESPOTPlanner)
             rng = get_rng(p.rs, first(scen), D.Delta[b])
             s = last(scen)
             if !isterminal(p.pomdp, s) # expand if s isn't a terminal state
-                sp, o, r = gen(DDNOut(:sp, :o, :r) , p.pomdp, s, a, rng)
+                sp, o, r = @gen(:sp, :o, :r)(p.pomdp, s, a, rng)
                 Gsum += r
                 bp = get(D.ba_odict[ba], o, 0)
                 if bp == 0

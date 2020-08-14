@@ -75,7 +75,7 @@ function next!(D::UCT_DESPOT, b::Int, p::UCT_DESPOTPlanner)
     s = last(scen)
     rng = get_rng(p.rs, first(scen), D.Delta[b])
     if !isterminal(p.pomdp, s)
-        sp, o, r = gen(DDNOut(:sp, :o, :r) , p.pomdp, s, D.ba_action[best_ba], rng)
+        sp, o, r = @gen(:sp, :o, :r)(p.pomdp, s, D.ba_action[best_ba], rng)
         bp = get(D.ba_odict[best_ba], o, 0)
         return bp, r
     end

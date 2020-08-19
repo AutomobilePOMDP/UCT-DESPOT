@@ -19,16 +19,10 @@ function UCT_DESPOT(p::UCT_DESPOTPlanner, b_0)
     A = actiontype(p.pomdp)
     O = obstype(p.pomdp)
 
-    i = 1
-    root_scenarios = Vector{Pair{Int,S}}(undef, p.sol.K)
-    while i <= p.sol.K
-        state = rand(p.rng, b_0)
-        if isterminal(p.pomdp, state)
-            continue
-        end
-        root_scenarios[i] = i=>state
-        i += 1
-    end 
+    root_scenarios = [i=>rand(p.rng, b_0) for i in 1:p.sol.K]
+    if all([isterminal(p.pomdp, s) for (k,s) in root_scenarios])
+        throw(NoTree())
+    end
 
     return UCT_DESPOT{S,A,O}([root_scenarios],
                          [Int[]],

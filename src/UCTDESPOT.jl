@@ -55,6 +55,7 @@ parameters match the definitions in the paper exactly.
 - `max_trials`
 - `rollout_policy`
 - `initializer`
+- `default_action`
 - `rng`
 - `random_source`
 - `tree_in_info`
@@ -80,13 +81,16 @@ Further information can be found in the field docstrings (e.g.
     T_max::Float64                          = 1.0
 
     "The maximum number of trials of the planner."
-    max_trials::Int                         = typemax(Int)
+    max_trials::Int                         = 10000
 
     "A rollout policy "
     rollout_policy::Union{Policy, Nothing}  = nothing
 
     "Heuristic initializer for V and N"
     initializer::Function                    = (b,a)->(0.0,0)
+
+    "A default action to be returned if the algorithm fails to provide an action."
+    default_action::Any                     = ExceptionRethrow()
 
     "A random number generator for the internal sampling processes."
     rng::MersenneTwister                    = MersenneTwister(rand(UInt32))
@@ -119,6 +123,7 @@ end
 
 include("tree.jl")
 include("planner.jl")
+include("exceptions.jl")
 include("pomdps_glue.jl")
 
 include("visualization.jl")

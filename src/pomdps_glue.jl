@@ -1,8 +1,8 @@
 POMDPs.solve(sol::UCT_DESPOTSolver, p::POMDP) = UCT_DESPOTPlanner(sol, p)
 
 function POMDPModelTools.action_info(p::UCT_DESPOTPlanner, b)
+    info = Dict{Symbol, Any}()
     try
-        info = Dict{Symbol, Any}()
         Random.seed!(p.rs, rand(p.rng, UInt32))
 
         D, record = build_despot(p, b)

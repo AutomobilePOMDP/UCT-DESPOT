@@ -1,5 +1,6 @@
 struct UCT_DESPOT{S,A,O}
     scenarios::Vector{Vector{Pair{Int,S}}} # to scenarios (index-state pair) of every *belief node*
+    last::Vector{Int} # denote the last expanded scenario of *ba node*
     children::Vector{Vector{Int}} # to children *ba nodes* of every *belief node*
     parent_b::Vector{Int} # maps to parent *belief node*
     parent::Vector{Int} # maps to the parent *ba node*
@@ -25,6 +26,7 @@ function UCT_DESPOT(p::UCT_DESPOTPlanner, b_0)
     end
 
     return UCT_DESPOT{S,A,O}([root_scenarios],
+                         Int[],
                          [Int[]],
                          [0],
                          [0],
@@ -55,9 +57,10 @@ function expand!(D::UCT_DESPOT, b::Int, p::UCT_DESPOTPlanner)
         push!(D.ba_N, ba_N)
         ba = length(D.ba_odict)
         push!(D.children[b], ba)
+        push!(D.last, p.sol.m)
 
         Gsum = 0.0
-        for scen in D.scenarios[b]
+        for scen in D.scenarios[b][1:p.sol.m]
             rng = get_rng(p.rs, first(scen), D.Delta[b])
             s = last(scen)
             if !isterminal(p.pomdp, s) # expand if s isn't a terminal state
@@ -86,12 +89,14 @@ function expand!(D::UCT_DESPOT, b::Int, p::UCT_DESPOTPlanner)
             D.parent[bp] = ba
             D.Delta[bp] = D.Delta[b]+1
             D.N[bp] = 0
-            # Update ba_V so that the best action can be choosen accordingly
             scenario_belief = get_belief(D, bp, p.rs)
-            Gsum += branching_sim(p.pomdp, p.rollout_policy, scenario_belief, p.sol.D-D.Delta[bp], p.sol.initializer)
+            Gsum += discount(p.pomdp) * branching_sim(p.pomdp, p.rollout_policy, scenario_belief, p.sol.D-D.Delta[bp], p.sol.initializer)
         end
-        D.ba_N[ba] += length(D.scenarios[b])
-        D.ba_V[ba] += (Gsum - D.ba_V[ba] * length(D.scenarios[b])) / D.ba_N[ba]
+        # Update ba_V so that the best action can be choosen accordingly
+        # D.ba_N[ba] += p.sol.m
+        # D.ba_V[ba] += (Gsum - D.ba_V[ba] * p.sol.m) / D.ba_N[ba]
+        D.ba_N[ba] += 1
+        D.ba_V[ba] += (Gsum/p.sol.m - D.ba_V[ba])/D.ba_N[ba]
         D.N[b] += D.ba_N[ba]
     end
 end

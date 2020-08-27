@@ -35,10 +35,19 @@ b = ScenarioBelief(scenarios, rs, 0, false)
     @test r3 == r2 + tval
 end
 
+# @testset "Random" begin
+#     D,_ = UCTDESPOT.build_despot(p, b0)
+#     rng = get_rng(p.rs, first(scen), D.Delta[1])
+#     num1 = rand(rng)
+#     rng = get_rng(p.rs, first(scen), D.Delta[1])
+#     num2 = rand(rng)
+#     @test num1 == num2
+# end
+
 pomdp = BabyPOMDP(-5, -10, 0.1, 0.8, 0.1, 0.95) 
 
 # random rollout policy
-solver = UCT_DESPOTSolver()
+solver = UCT_DESPOTSolver(c=100.0)
 planner = solve(solver, pomdp)
 hr = HistoryRecorder(max_steps=100)
 println("\nRandom rollout policy:")
@@ -46,7 +55,7 @@ println("\nRandom rollout policy:")
 println("Discounted reward is $(discounted_reward(hist))")
 
 # FeedWhenCrying policy
-solver = UCT_DESPOTSolver(rollout_policy=FeedWhenCrying())
+solver = UCT_DESPOTSolver(c=100.0, rollout_policy=FeedWhenCrying())
 planner = solve(solver, pomdp)
 hr = HistoryRecorder(max_steps=100)
 println("\nFeedWhenCrying as rollout policy:")
@@ -55,7 +64,7 @@ println("Discounted reward is $(discounted_reward(hist))")
 
 # FeedWhenCrying policy with a bad initializer
 initializer(b, a) = (reward(pomdp, true, false)/(1-discount(pomdp)), 1)
-solver = UCT_DESPOTSolver(rollout_policy=FeedWhenCrying(), initializer=initializer)
+solver = UCT_DESPOTSolver(c=100.0, rollout_policy=FeedWhenCrying(), initializer=initializer)
 planner = solve(solver, pomdp)
 hr = HistoryRecorder(max_steps=100)
 println("\nFeedWhenCrying with a bad final value as rollout policy:")

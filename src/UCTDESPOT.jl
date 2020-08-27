@@ -81,7 +81,7 @@ Further information can be found in the field docstrings (e.g.
     T_max::Float64                          = 1.0
 
     "The maximum number of trials of the planner."
-    max_trials::Int                         = 10000
+    max_trials::Int                         = 1000000
 
     "A rollout policy "
     rollout_policy::Union{Policy, Nothing}  = nothing
@@ -102,7 +102,7 @@ Further information can be found in the field docstrings (e.g.
     tree_in_info::Bool                      = false
 
     "UCB exploration constant - specifies how much the solver should explore."
-    c::Float64                              = 1.0
+    c::Float64                              = 100.0
 end
 
 struct UCT_DESPOTPlanner{P<:POMDP, RS<:DESPOTRandomSource, RNG<:AbstractRNG} <: Policy

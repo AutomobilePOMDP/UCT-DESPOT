@@ -12,6 +12,7 @@ struct UCT_DESPOT{S,A,O}
     ba_odict::Vector{Dict{O, Int}}
     ba_N::Vector{Int}
     ba_V::Vector{Float64}
+    ba_R::Vector{Float64}
     ba_action::Vector{A}
 end
 
@@ -37,6 +38,7 @@ function UCT_DESPOT(p::UCT_DESPOTPlanner, b_0)
                          Vector{Int}[],
                          Vector{Dict{O, Int}}[],
                          Int[],
+                         Float64[],
                          Float64[],
                          A[]
                  )
@@ -77,6 +79,8 @@ function expand!(D::UCT_DESPOT, b::Int, p::UCT_DESPOTPlanner)
                 push!(D.scenarios[bp], first(scen)=>sp)
             end
         end
+
+        push!(D.ba_R, Gsum/p.sol.m)
 
         push!(D.ba_children, collect(values(D.ba_odict[ba])))
         nbps = length(D.ba_odict[ba])

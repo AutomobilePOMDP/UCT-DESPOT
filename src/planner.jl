@@ -49,12 +49,12 @@ function next!(D::UCT_DESPOT, b::Int, p::UCT_DESPOTPlanner)
     end
     a = D.ba_action[best_ba]
 
-    Rsum = 0.0
-    new_expand = 0
-    # Gsum = 0.0
-    len_scen = length(D.scenarios[b])
     # expand unseen scenarios of best_ba
+    len_scen = length(D.scenarios[b])
+    new_expand = 0
     if D.last[best_ba] < len_scen
+        Rsum = 0.0
+        # Gsum = 0.0
         last_scen = D.last[best_ba] + p.sol.m < len_scen ? D.last[best_ba] + p.sol.m : len_scen
         new_expand = last_scen - D.last[best_ba]
         for scen in D.scenarios[b][D.last[best_ba]+1:last_scen]
@@ -96,6 +96,7 @@ function next!(D::UCT_DESPOT, b::Int, p::UCT_DESPOTPlanner)
             end
         end
 
+        D.ba_R[best_ba] += (Rsum - D.ba_R[best_ba] * new_expand)/last_scen
         D.last[best_ba] = last_scen
         # D.ba_N[best_ba] += new_expand
         # D.ba_V[best_ba] += (Gsum - D.ba_V[best_ba] * new_expand) / D.ba_N[best_ba]
@@ -106,10 +107,14 @@ function next!(D::UCT_DESPOT, b::Int, p::UCT_DESPOTPlanner)
     scen = rand(p.rng, D.scenarios[b][1:D.last[best_ba]])
     s = last(scen)
     rng = get_rng(p.rs, first(scen), D.Delta[b])
+    bp = nothing
     if !isterminal(p.pomdp, s)
-        sp, o, r = @gen(:sp, :o, :r)(p.pomdp, s, a, rng)
+        o = @gen(:o)(p.pomdp, s, a, rng)
         bp = D.ba_odict[best_ba][o]
-        return best_ba::Int, ((Rsum + r)/(new_expand+1))::Float64, bp::Int
     end
-    return best_ba::Int, (Rsum/(new_expand+1))::Float64, nothing
+    if new_expand == 0
+        return best_ba::Int, D.ba_R[best_ba]::Float64, bp::Union{Int, Nothing}
+    else
+        return best_ba::Int, (Rsum/new_expand)::Float64, bp::Union{Int, Nothing}
+    end
 end

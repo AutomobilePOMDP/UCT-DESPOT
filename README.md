@@ -1,4 +1,4 @@
-# LB-DESPOT
+# UCT-DESPOT
 
 ## Installation
 

@@ -63,7 +63,7 @@ function rollout(pomdp::POMDP, policy::Policy, b0::ScenarioBelief, steps::Intege
             disc *= discount(pomdp)
             steps -= 1
         else
-            return r_total += disc*first(initializer(pomdp, b))
+            return r_total += disc*first(initializer(b, a))
         end
     end
     return r_total

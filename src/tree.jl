@@ -54,7 +54,7 @@ function expand!(D::UCT_DESPOT, b::Int, p::UCT_DESPOTPlanner)
         # initialize ba related attributes
         push!(D.ba_odict, Dict{O, Int}())
         push!(D.ba_action, a)
-        ba_V, ba_N = p.sol.initializer(b, a)
+        ba_V, ba_N = p.sol.initializer(belief, a)
         push!(D.ba_V, ba_V)
         push!(D.ba_N, ba_N)
         ba = length(D.ba_odict)
